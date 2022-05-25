@@ -16,6 +16,7 @@ async function run() {
     await client.connect();
     const productsCollection = client.db("pedaler").collection("products");
     const ordersCollection = client.db("pedaler").collection("orders");
+
     // get all products
     app.get('/products', async (req, res) => {
       const query = {};
@@ -53,6 +54,14 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.deleteOne(query);
       res.send(result);
+    });
+
+    // get an order with id
+    app.get('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const order = await ordersCollection.findOne(query);
+      res.send(order);
     });
 
   }
