@@ -1,7 +1,9 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
+const res = require('express/lib/response');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET);
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -16,6 +18,19 @@ async function run() {
     await client.connect();
     const productsCollection = client.db("pedaler").collection("products");
     const ordersCollection = client.db("pedaler").collection("orders");
+
+    // payment
+    app.post('/create-payment-intent', async (req, res) => {
+      const order = req.body;
+      const price = order.price;
+      const amount = price*100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types:['card']
+      });
+      res.send({clientSecret: paymentIntent.client_secret})
+    });
 
     // get all products
     app.get('/products', async (req, res) => {
@@ -62,6 +77,21 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const order = await ordersCollection.findOne(query);
       res.send(order);
+    });
+
+    // update an order with id
+    app.patch('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const paymentInfo = req.body;
+      const query = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          status: 'Paid',
+          transactionId: paymentInfo.transactionId
+        }
+      };
+      const updatedOrder = await ordersCollection.updateOne(query, updatedDoc);
+      res.send(updatedOrder);
     });
 
   }
