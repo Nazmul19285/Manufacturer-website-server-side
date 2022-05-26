@@ -45,7 +45,27 @@ async function run() {
       };
       const result = await usersCollection.updateOne(filter, updatedDoc, options);
       res.send(result);
+    });
+
+    // get an user with email
+    app.get('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      res.send(user);
     })
+
+    // update an user with email
+    app.patch('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const query = { email: email };
+      const updatedDoc = {
+        $set: user
+      };
+      const updatedUser = await usersCollection.updateOne(query, updatedDoc);
+      res.send(updatedUser);
+    });
 
     // get all products
     app.get('/products', async (req, res) => {
@@ -53,6 +73,14 @@ async function run() {
       const cursor = productsCollection.find(query);
       const products = await cursor.toArray();
       res.send(products);
+    });
+
+    // get all reviews
+    app.get('/reviews', async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
     });
 
     // get a product with id
