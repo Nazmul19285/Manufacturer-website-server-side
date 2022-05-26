@@ -75,12 +75,28 @@ async function run() {
       res.send(products);
     });
 
+    // get all orders
+    app.get('/orders', async (req, res) => {
+      const query = {};
+      const cursor = ordersCollection.find(query);
+      const orders = await cursor.toArray();
+      res.send(orders);
+    });
+
     // get all reviews
     app.get('/reviews', async (req, res) => {
       const query = {};
       const cursor = reviewsCollection.find(query);
       const reviews = await cursor.toArray();
       res.send(reviews);
+    });
+
+    // get all users
+    app.get('/users', async (req, res) => {
+      const query = {};
+      const cursor = usersCollection.find(query);
+      const users = await cursor.toArray();
+      res.send(users);
     });
 
     // get a product with id
@@ -98,6 +114,13 @@ async function run() {
       res.send(result);
     });
 
+    // add a product
+    app.post('/products', async (req, res) => {
+      const newProduct = req.body;
+      const result = await productsCollection.insertOne(newProduct);
+      res.send(result);
+    });
+
     // place a review
     app.post('/reviews', async (req, res) => {
       const newReview = req.body;
@@ -105,7 +128,7 @@ async function run() {
       res.send(result);
     });
 
-    // get a user orders
+    // get a user's orders
     app.get('/userorders', async (req, res) => {
       const email = req.query.email;
       const query = { userEmail: email };
