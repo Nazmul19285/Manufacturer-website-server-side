@@ -18,6 +18,8 @@ async function run() {
     await client.connect();
     const productsCollection = client.db("pedaler").collection("products");
     const ordersCollection = client.db("pedaler").collection("orders");
+    const reviewsCollection = client.db("pedaler").collection("reviews");
+    const usersCollection = client.db("pedaler").collection("users");
 
     // payment
     app.post('/create-payment-intent', async (req, res) => {
@@ -31,6 +33,19 @@ async function run() {
       });
       res.send({clientSecret: paymentIntent.client_secret})
     });
+
+    // create user
+    app.put('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = {email: email};
+      const options = { upsert: true};
+      const updatedDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(filter, updatedDoc, options);
+      res.send(result);
+    })
 
     // get all products
     app.get('/products', async (req, res) => {
@@ -52,6 +67,13 @@ async function run() {
     app.post('/orders', async (req, res) => {
       const newOrder = req.body;
       const result = await ordersCollection.insertOne(newOrder);
+      res.send(result);
+    });
+
+    // place a review
+    app.post('/reviews', async (req, res) => {
+      const newReview = req.body;
+      const result = await reviewsCollection.insertOne(newReview);
       res.send(result);
     });
 
