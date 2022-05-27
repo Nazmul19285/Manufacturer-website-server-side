@@ -175,6 +175,18 @@ async function run() {
       res.send(updatedOrder);
     });
 
+    // update an product with id
+    app.patch('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const product = req.body;
+      const query = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: product
+      };
+      const updatedProduct = await productsCollection.updateOne(query, updatedDoc);
+      res.send(updatedProduct);
+    });
+
   }
   finally {
 
