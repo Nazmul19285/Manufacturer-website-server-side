@@ -136,6 +136,14 @@ async function run() {
       res.send(orders);
     });
 
+    // get products by category
+    app.get('/category', async (req, res) => {
+      const category = req.query.category;
+      const query = { category: category };
+      const products = await productsCollection.find(query).toArray();
+      res.send(products);
+    });
+
     // Delete an order
     app.delete('/orders/:id', async (req, res) => {
       const id = req.params.id;
