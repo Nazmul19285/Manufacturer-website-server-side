@@ -174,10 +174,7 @@ async function run() {
       const paymentInfo = req.body;
       const query = { _id: ObjectId(id) };
       const updatedDoc = {
-        $set: {
-          status: 'Paid',
-          transactionId: paymentInfo.transactionId
-        }
+        $set: paymentInfo,
       };
       const updatedOrder = await ordersCollection.updateOne(query, updatedDoc);
       res.send(updatedOrder);
